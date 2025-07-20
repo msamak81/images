@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-gap: 15px;
+            margin-top: 20px;
+        }
+        .gallery-item {
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .image-caption {
+            padding: 10px;
+            text-align: center;
+            background-color: #f8f8f8;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Image Gallery</h1>
+    </header>
+    
+    <div class="container">
+        <div class="gallery" id="image-gallery">
+            <!-- Images will be loaded dynamically -->
+        </div>
+        
+        <script>
+            // Function to load images dynamically
+            async function loadImages() {
+                const gallery = document.getElementById('image-gallery');
+                gallery.innerHTML = ''; // Clear existing content
+                
+                try {
+                    // Fetch image list from Node.js API endpoint
+                    const response = await fetch('/api/images');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch image list');
+                    }
+                    
+                    const imageFiles = await response.json();
+                    
+                    if (imageFiles.length === 0) {
+                        gallery.innerHTML = '<p>No images found in the images directory.</p>';
+                        return;
+                    }
+                    
+                    // Create gallery items for each image
+                    imageFiles.forEach(imageFile => {
+                        // Create elements
+                        const galleryItem = document.createElement('div');
+                        galleryItem.className = 'gallery-item';
+                        
+                        const img = document.createElement('img');
+                        img.src = 'images/' + imageFile;
+                        img.alt = imageFile;
+                        
+                        const caption = document.createElement('div');
+                        caption.className = 'image-caption';
+                        caption.textContent = imageFile;
+                        
+                        // Append elements
+                        galleryItem.appendChild(img);
+                        galleryItem.appendChild(caption);
+                        gallery.appendChild(galleryItem);
+                    });
+                } catch (error) {
+                    console.error('Error loading images:', error);
+                    gallery.innerHTML = `<p>Error loading images: ${error.message}</p>`;
+                }
+            }
+            
+            // Load images when page loads
+            document.addEventListener('DOMContentLoaded', loadImages);
+        </script>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Image Gallery. All rights reserved.</p>
+    </footer>
+</body>
+</html>
