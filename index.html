@@ -77,13 +77,21 @@
         </div>
         
         <script>
-            // Function to load images dynamically
+            // Function to update images.json and then load images dynamically
             async function loadImages() {
                 const gallery = document.getElementById('image-gallery');
                 gallery.innerHTML = ''; // Clear existing content
                 
                 try {
-                    // Fetch image list from static JSON file
+                    // First update the images.json file
+                    const updateResponse = await fetch('/api/update-images');
+                    if (!updateResponse.ok) {
+                        console.warn('Failed to update images.json, proceeding with existing file');
+                    } else {
+                        console.log('Successfully updated images.json');
+                    }
+                    
+                    // Then fetch the updated image list
                     const response = await fetch('images.json');
                     if (!response.ok) {
                         throw new Error('Failed to fetch image list');

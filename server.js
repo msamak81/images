@@ -5,6 +5,32 @@ const url = require('url');
 
 const PORT = 3000;
 
+// Function to update the images.json file
+function updateImagesJson() {
+  try {
+    const imagesDir = path.join(__dirname, 'images');
+    const jsonFilePath = path.join(__dirname, 'images.json');
+    
+    // Read the images directory
+    const files = fs.readdirSync(imagesDir);
+    
+    // Filter for image files only
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext);
+    });
+    
+    // Write the list to the JSON file
+    fs.writeFileSync(jsonFilePath, JSON.stringify(imageFiles, null, 2));
+    
+    console.log('Successfully updated images.json with', imageFiles.length, 'images');
+    return imageFiles;
+  } catch (error) {
+    console.error('Error updating images.json:', error);
+    return [];
+  }
+}
+
 // MIME types for different file extensions
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -26,6 +52,20 @@ const server = http.createServer((req, res) => {
   // Handle root path
   if (pathname === '/') {
     pathname = '/index.html';
+  }
+  
+  // Handle API endpoint for updating and listing images
+  if (pathname === '/api/update-images') {
+    // Update the images.json file
+    const updatedImages = updateImagesJson();
+    
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      success: true,
+      message: 'Images.json updated successfully',
+      images: updatedImages
+    }));
+    return;
   }
   
   // Handle API endpoint for listing images
